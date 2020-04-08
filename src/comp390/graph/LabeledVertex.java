@@ -3,6 +3,7 @@ package comp390.graph;
 public class LabeledVertex implements Vertex {
 
 	private String _label;
+	private boolean _mark;
 	
 	public LabeledVertex(String label) {
 		if (label == null) {
@@ -10,6 +11,7 @@ public class LabeledVertex implements Vertex {
 		}
 		
 		_label = label;		
+		_mark = false;
 	}
 	
 	@Override
@@ -19,5 +21,20 @@ public class LabeledVertex implements Vertex {
 	
 	public String getLabel() {
 		return _label;
+	}
+
+	@Override
+	public void mark() {
+		_mark = true;
+	}
+
+	@Override
+	public void unmark() {
+		_mark = false;
+	}
+
+	@Override
+	public boolean isMarked() {
+		return _mark;
 	}
 }

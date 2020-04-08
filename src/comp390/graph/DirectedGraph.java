@@ -12,9 +12,10 @@ public interface DirectedGraph {
 	void addEdge(Vertex from, Vertex to);
 	void removeEdge(Vertex from, Vertex to);
 	boolean hasEdge(Vertex from, Vertex to);
+	DirectedEdge findEdge(Vertex from, Vertex to);
 	
 	Set<Vertex> getVertices();
 	Set<DirectedEdge> getEdges();
 	
-	List<DirectedEdge> findPath(Vertex beginning, Vertex end);
+	DirectedPath findPath(Vertex beginning, Vertex end);
 }

@@ -70,7 +70,8 @@ public class DirectedGraphImpl implements DirectedGraph {
 		return findEdge(from, to) != null;
 	}
 
-	private DirectedEdge findEdge(Vertex from, Vertex to) {
+	@Override
+	public DirectedEdge findEdge(Vertex from, Vertex to) {
 		if (!hasVertex(from) || !hasVertex(to)) {
 			return null;
 		}
@@ -104,45 +105,34 @@ public class DirectedGraphImpl implements DirectedGraph {
 	}
 
 	@Override
-	public List<DirectedEdge> findPath(Vertex beginning, Vertex end) {
+	public DirectedPath findPath(Vertex beginning, Vertex end) {
 		
-		Queue<List<DirectedEdge>> paths = new LinkedList<List<DirectedEdge>>();
-		
-		for (DirectedEdge e : _adj_lists.get(beginning)) {
-			List<DirectedEdge> p = new ArrayList<DirectedEdge>();
-			p.add(e);
-			if (e.getDestination() == end) {
-				return p;
-			}
-			paths.add(p);
+		for (Vertex v : getVertices()) {
+			v.unmark();
 		}
+		beginning.mark();
 		
-		while (paths.size() > 0) {
-			List<DirectedEdge> p = paths.remove();
-			Vertex last_in_path = p.get(p.size()-1).getDestination();
-			for (DirectedEdge e : _adj_lists.get(last_in_path)) {
-				Vertex next_in_path = e.getDestination();
-				if (!vertexIsInPath(p, next_in_path)) {
-					List<DirectedEdge> extended_path = new ArrayList<DirectedEdge>();
-					extended_path.addAll(p);
-					extended_path.add(e);
-					if (e.getDestination() == end) {
-						return extended_path;
-					}
-					paths.add(extended_path);
+		Queue<DirectedPath> path_queue = new LinkedList<DirectedPath>();
+		path_queue.add(new DirectedPathImpl(this, beginning));
+
+		int num_paths_considered = 0;
+		while (path_queue.size() > 0) {
+			DirectedPath path = path_queue.remove();
+			num_paths_considered++;
+			System.out.println(num_paths_considered + " (path size: " + path.getLength() + ", queue size: " + path_queue.size() + ")");
+			Vertex path_end = path.getEnd();
+			if (path_end == end) {
+				// Found the path.
+				return path;
+			}
+			for (DirectedEdge e : _adj_lists.get(path_end)) {
+				Vertex next_vertex = e.getDestination();
+				if (!next_vertex.isMarked()) {
+					next_vertex.mark();
+					path_queue.add(new DirectedPathImpl(path, next_vertex));
 				}
 			}
 		}
-		
 		return null;
-	}
-	
-	private boolean vertexIsInPath(List<DirectedEdge> path, Vertex v) {
-		for (DirectedEdge e : path) {
-			if ((e.getSource() == v) || (e.getDestination() == v)) {
-				return true;
-			}
-		}
-		return false;
-	}
+	}	
 }

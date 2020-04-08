@@ -5,6 +5,7 @@ import java.util.List;
 public class Main {
 
 	public static void main(String[] args) {
+		
 		Vertex a = new LabeledVertex("A");
 		Vertex b = new LabeledVertex("B");
 		Vertex c = new LabeledVertex("C");
@@ -29,12 +30,10 @@ public class Main {
 		g.addEdge(d, c);
 		g.addEdge(e, d);
 		
-		List<DirectedEdge> path = g.findPath(a, d);
+		DirectedPath path = g.findPath(a, d);
 		
 		if (path != null) {
-			for (DirectedEdge edge : path) {
-				System.out.println(edge.getSource() + "->" + edge.getDestination());
-			}
+			System.out.println(path);
 		} else {
 			System.out.println("No path");
 		}
