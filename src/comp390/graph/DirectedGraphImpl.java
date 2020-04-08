@@ -103,36 +103,4 @@ public class DirectedGraphImpl implements DirectedGraph {
 		}
 		return result;
 	}
-
-	@Override
-	public DirectedPath findPath(Vertex beginning, Vertex end) {
-		
-		for (Vertex v : getVertices()) {
-			v.unmark();
-		}
-		beginning.mark();
-		
-		Queue<DirectedPath> path_queue = new LinkedList<DirectedPath>();
-		path_queue.add(new DirectedPathImpl(this, beginning));
-
-		int num_paths_considered = 0;
-		while (path_queue.size() > 0) {
-			DirectedPath path = path_queue.remove();
-			num_paths_considered++;
-			System.out.println(num_paths_considered + " (path size: " + path.getLength() + ", queue size: " + path_queue.size() + ")");
-			Vertex path_end = path.getEnd();
-			if (path_end == end) {
-				// Found the path.
-				return path;
-			}
-			for (DirectedEdge e : _adj_lists.get(path_end)) {
-				Vertex next_vertex = e.getDestination();
-				if (!next_vertex.isMarked()) {
-					next_vertex.mark();
-					path_queue.add(new DirectedPathImpl(path, next_vertex));
-				}
-			}
-		}
-		return null;
-	}	
 }

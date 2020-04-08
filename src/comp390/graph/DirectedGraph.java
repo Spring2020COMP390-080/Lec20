@@ -16,6 +16,4 @@ public interface DirectedGraph {
 	
 	Set<Vertex> getVertices();
 	Set<DirectedEdge> getEdges();
-	
-	DirectedPath findPath(Vertex beginning, Vertex end);
 }
