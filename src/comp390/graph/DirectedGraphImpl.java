@@ -12,11 +12,13 @@ import java.util.List;
 public class DirectedGraphImpl implements DirectedGraph {
 
 	private Map<Vertex, List<DirectedEdge>> _adj_lists;
+	private Map<Vertex, Integer> _in_degrees;
 	
 	public DirectedGraphImpl() {
 		_adj_lists = new HashMap<Vertex, List<DirectedEdge>>();
+		_in_degrees = new HashMap<Vertex, Integer>();
 	}
-
+	
 	@Override
 	public void addVertex(Vertex v) {
 		if (hasVertex(v)) {
@@ -25,21 +27,52 @@ public class DirectedGraphImpl implements DirectedGraph {
 		}
 		
 		_adj_lists.put(v, new ArrayList<DirectedEdge>());
+		_in_degrees.put(v, 0);
 	}
 
 	@Override
 	public void removeVertex(Vertex v) {
+
+		// If there are incoming edges remove them first.
+		
+		if (getInDegreeOfVertex(v) > 0) {
+			// Only here if there is at least one 
+			// inbound edge
+			for (Vertex other : _adj_lists.keySet()) {
+				removeEdge(other, v);
+			}			
+		}
+		
+		List<DirectedEdge> outbound_edges = _adj_lists.get(v);
+
+		// Adjust in degree of destination vertexes of the outbound edges
+		for (DirectedEdge e : outbound_edges) {
+			_in_degrees.put(e.getDestination(), _in_degrees.get(e.getDestination())-1);
+		}
 		
 		_adj_lists.remove(v);
-		
-		for (Vertex other : _adj_lists.keySet()) {
-			removeEdge(other, v);
-		}
+		_in_degrees.remove(v);		
 	}
 
 	@Override
 	public boolean hasVertex(Vertex v) {
 		return _adj_lists.containsKey(v);
+	}
+		
+	@Override
+	public int getInDegreeOfVertex(Vertex v) {
+		return _in_degrees.get(v);
+	}
+
+	@Override
+	public Vertex[] getAdjacent(Vertex v) {
+		List<DirectedEdge> edge_list = _adj_lists.get(v);
+		
+		Vertex[] adjacent = new Vertex[edge_list.size()];
+		for (int i=0; i<edge_list.size(); i++) {
+			adjacent[i] = edge_list.get(i).getDestination();
+		}
+		return adjacent;
 	}
 
 	@Override
@@ -54,6 +87,7 @@ public class DirectedGraphImpl implements DirectedGraph {
 		}
 		
 		_adj_lists.get(from).add(new DirectedEdgeImpl(from, to));
+		_in_degrees.put(to, _in_degrees.get(to)+1);
 	}
 
 	@Override
@@ -62,6 +96,7 @@ public class DirectedGraphImpl implements DirectedGraph {
 		
 		if (edge != null) {
 			_adj_lists.get(from).remove(edge);
+			_in_degrees.put(to, _in_degrees.get(to)-1);
 		}
 	}
 
@@ -103,36 +138,19 @@ public class DirectedGraphImpl implements DirectedGraph {
 		}
 		return result;
 	}
-
+	
 	@Override
-	public DirectedPath findPath(Vertex beginning, Vertex end) {
-		
+	public DirectedGraph clone() {
+		DirectedGraph clone = new DirectedGraphImpl();
 		for (Vertex v : getVertices()) {
-			v.unmark();
+			clone.addVertex(v);
 		}
-		beginning.mark();
-		
-		Queue<DirectedPath> path_queue = new LinkedList<DirectedPath>();
-		path_queue.add(new DirectedPathImpl(this, beginning));
+		for (DirectedEdge e : getEdges()) {
+			clone.addEdge(e.getSource(), e.getDestination());
+		}
+		return clone;
+	}
+	
 
-		int num_paths_considered = 0;
-		while (path_queue.size() > 0) {
-			DirectedPath path = path_queue.remove();
-			num_paths_considered++;
-			System.out.println(num_paths_considered + " (path size: " + path.getLength() + ", queue size: " + path_queue.size() + ")");
-			Vertex path_end = path.getEnd();
-			if (path_end == end) {
-				// Found the path.
-				return path;
-			}
-			for (DirectedEdge e : _adj_lists.get(path_end)) {
-				Vertex next_vertex = e.getDestination();
-				if (!next_vertex.isMarked()) {
-					next_vertex.mark();
-					path_queue.add(new DirectedPathImpl(path, next_vertex));
-				}
-			}
-		}
-		return null;
-	}	
+
 }
