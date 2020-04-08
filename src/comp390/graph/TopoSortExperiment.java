@@ -4,7 +4,7 @@ import java.util.List;
 
 public class TopoSortExperiment {
 
-	public static void main(String[] args) throws NoTopologicalSortException {
+	public static void main(String[] args)  {
 		double edge_perc = 0.2;
 		int rep_count = 10;
 
@@ -13,7 +13,7 @@ public class TopoSortExperiment {
 		}
 	}
 
-	static void runExperiment(int vcount, double eperc, int reps) throws NoTopologicalSortException {
+	static void runExperiment(int vcount, double eperc, int reps) {
 		long slow_time_sum = 0;
 		long fast_time_sum = 0;
 		
